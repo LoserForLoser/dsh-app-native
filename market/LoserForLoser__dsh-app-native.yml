@@ -1,0 +1,6 @@
+url: https://github.com/LoserForLoser/dsh-app-native
+name: LoserForLoser/dsh-app-native
+category: identity
+description:
+  en: 'Mobile-native development agent preset: one self-installing preset that covers iOS, Android and HarmonyOS across all their native languages, with per-platform stack markers and build/debug loops.'
+  zh: 移动端原生开发 agent 预设：一个安装即自动落盘的预设，覆盖 iOS、Android、HarmonyOS 三端全部原生语言，并带各平台的技术栈识别、构建验证环与真机调试闭环。

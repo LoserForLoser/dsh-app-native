@@ -1,90 +1,87 @@
-# 发布清单 — 把 dsh-app-native 发布到插件市场
+# 发布清单 — dsh-app-native
 
-**当前状态**：包已全部就绪并通过本地端到端验证。**唯一缺的是账号凭据** —— 本机 npm 未登录（`npm whoami` 报 `ENEEDAUTH`）、未安装 `gh`，所以下面第 1–3 步需要用你自己的账号执行。第 0 步我已经替你做完了。
+Owner: **LoserForLoser**(447231214@qq.com)。
 
----
+## 状态
 
-## 0. 已经验证过的（不需要你重复）
-
-| 项目 | 结果 |
+| 步骤 | 状态 |
 |---|---|
-| npm 包名可用性 | `dsh-app-native` 未被占用（registry 返回 404） |
-| `npm pack` 内容 | 8 个文件 / 13.5 kB：`package.json`、`cordis.patch.yml`、`lib/index.js`、`preset/app-native/{agent.cordis.yml,preset.yml}`、两个 README、LICENSE |
-| 安装器行为 | 全新安装 ✓、幂等（本地改动保留）✓、部分拷贝可恢复 ✓、不可写目录只告警不抛错 ✓ —— 共 11 项全通过 |
-| 端到端 | 临时 profile 装上 tarball 后**真实启动**，预设自动落盘到 `$DSH_HOME/.agent-presets/app-native/`，与包内内容逐字节一致 ✓ |
-| 预设挂载校验 | `agentPresets.standingKeyFor()` = OK（等同一次会话启动的真实组装） |
+| npm 包名 | **可用** — `dsh-app-native` registry 返回 404 |
+| 包内容 | **就绪** — `npm pack` = 8 个文件(见下) |
+| `dsh.bundle` manifest | **就绪** — `{"bundle":{"patch":"./cordis.patch.yml"}}`,仓库根有 `cordis.patch.yml` |
+| 测试 | **15/15 通过** — `npm test`(见 §测试);已随仓库提交,不再是不能复核的声明 |
+| GitHub 仓库 | **待你建** — `LoserForLoser/dsh-app-native` 目前 404;仓库创建需要网页或 token,SSH 无法创建 |
+| 市场条目 | **就绪** — `market/LoserForLoser__dsh-app-native.yml`(文件名符合 `data/plugins/<owner>__<repo>.yml` 约定) |
+| npm 发布 | **待凭据** — 本机 `npm whoami` → `ENEEDAUTH`,npm 账号与 GitHub 独立 |
+| 仓库 topic | **待你点一下** — 收录要求仓库带 `dsh-plugin` topic(About 面板,Topic 无法通过 SSH 设置) |
 
----
+## 需要人工完成的动作
 
-## 1. 建 GitHub 仓库并推送
+1. **建空仓库** https://github.com/new → 名字 `dsh-app-native`,Public,不要勾 README / .gitignore / license。
+2. **加 topic**:仓库 About 面板 → Topics → `dsh-plugin`(可顺手补一句描述)。
+3. **npm 凭据**:注册 https://www.npmjs.com/signup(同邮箱),然后在
+   https://www.npmjs.com/settings/~/tokens 新建 **Granular Access Token**(Packages: read+write,
+   勾选 *Bypass 2FA*,有效期按需)。把 token 设为环境变量即可非交互发布:
 
-先在 GitHub 上建一个空仓库 `dsh-app-native`，然后：
+   ```bash
+   cd /Users/songzhaoyang/Desktop/JLXY/dsh-app-native
+   NPM_TOKEN=... npm publish --registry https://registry.npmjs.org/ \
+     --//registry.npmjs.org/:_authToken=$NPM_TOKEN
+   ```
 
-```sh
-cd /Users/songzhaoyang/Desktop/JLXY/dsh-app-native
+   发布后包名 `dsh-app-native` 全局可用,`dsh plugin add dsh-app-native` 即按名安装。
+4. **市场 PR**:仓库满 1 天后(CI 的 `MIN_AGE_DAYS = 1`)按 §市场条目 提 PR。
 
-# 先补上 npm 元数据里的仓库地址（当前刻意留空，避免出现假 URL）：
-#   "repository": { "type": "git", "url": "git+https://github.com/<你>/dsh-app-native.git" }
-#   "homepage":   "https://github.com/<你>/dsh-app-native#readme"
-#   "bugs":       { "url": "https://github.com/<你>/dsh-app-native/issues" }
+## 市场条目
 
-git remote add origin git@github.com:<你>/dsh-app-native.git
-git branch -M main
-git push -u origin main
+`category` 选 **`identity`** 而非 `workflow`:市场数据里这一类的既有条目正是"agent 身份/persona/预设"
+(如 persona runtime、强制回复语言),而本仓库交付的正是一个 agent 预设(persona + 组合),
+按实际语义归类比按"开发工具"归类更贴合惯例。
+
+提 PR:
+
+```bash
+git clone --depth 1 git@github.com:LoserForLoser/awesome-dsh-plugin.git
+cd awesome-dsh-plugin
+git remote add upstream https://github.com/awesome-dsh-plugin/awesome-dsh-plugin.git
+git fetch --depth 1 upstream main && git checkout -b add-dsh-app-native FETCH_HEAD
+cp /Users/songzhaoyang/Desktop/JLXY/dsh-app-native/market/LoserForLoser__dsh-app-native.yml \
+   data/plugins/LoserForLoser__dsh-app-native.yml
+git add data/plugins/LoserForLoser__dsh-app-native.yml
+git commit -m "Add dsh-app-native"
+git push origin add-dsh-app-native
 ```
 
-本地仓库已经 `git init` 并提交好了（1 个提交，9 个文件）。
+规则要点(摘自市场 `contributing.md`):一个插件一个文件、路径为 `data/plugins/<owner>__<repo>.yml`;
+只有 `description.en` 必填;描述含 `": "` 必须加引号(本条目已用单引号包裹);不要手工编辑生成的 README;
+仓库需满 1 天且带 `dsh-plugin` topic;仓库需有真实可用代码。
 
-## 2. 登录 npm 并发布
+## 测试
 
-```sh
-npm login            # 交互式授权（浏览器或 OTP）
-npm publish          # package.json 的 publishConfig 已指向 https://registry.npmjs.org/
+```bash
+npm test        # 15 passed, 0 failed
 ```
 
-发布后自检：
+覆盖:模块导出面、`resolveDshHome` 对 `$DSH_HOME` 与 `~/.dsh` 的解析、预设包完整性
+(`preset.yml` 的 name/description/order)、**persona 是否仍覆盖 iOS/Android/HarmonyOS 全部原生语言
+标记**(防止 persona 被截断)、全新安装逐字节一致、幂等且保留本地改动、部分拷贝可恢复、
+不可写 home 只告警不抛错、`apply()` 默认安装 / `config.presetId` 改位 / `installPreset:false` 跳过 /
+无 logger 时走 console 兜底。
 
-```sh
-npm view dsh-app-native version
-dsh plugin --profile web add dsh-app-native     # 装到真实 profile
-# 重启 profile → 新会话的预设选择器里应出现「APP原生开发」
+测试桩两处踩坑已修:harness logger 是 printf 风格(`%s`),以及 `apply()` 的安装是
+fire-and-forget,**必须轮询等待真实 fs I/O**(固定次数的微任务不足以覆盖线程池 I/O)。
+
+## 包内容(`npm pack` 8 个文件)
+
+```
+package.json
+cordis.patch.yml
+lib/index.js
+preset/app-native/agent.cordis.yml
+preset/app-native/preset.yml
+README.md
+README.zh.md
+LICENSE
 ```
 
-> 注意 `npm publish` 会在**公网发布**，任何人都能安装。若要撤回：`npm unpublish dsh-app-native@0.1.0`（72 小时内）。
-
-## 3. 提交收录 PR —— 这一步才让它出现在「插件市场」里
-
-市场的目录数据来自仓库 **[awesome-dsh-plugin/awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin)** 的 `data/plugins/`，**一个插件一个 YAML 文件**；两个 README 由脚本生成，**不要手工编辑**。
-
-1. Fork 该仓库
-2. 把本目录的 `market/awesome-dsh-plugin-entry.yml` 复制过去，命名为 **`data/plugins/<owner>__dsh-app-native.yml`**（`<owner>` 必须与仓库所属者完全一致）
-3. 把文件里的 `<OWNER>` 换成你的 GitHub 用户名
-4. 提 PR
-
-条目格式（官方 `contributing.md` 原文要求）：
-
-```yaml
-url: https://github.com/<owner>/dsh-app-native
-name: <owner>/dsh-app-native
-category: workflow
-description:
-  en: '...'
-  zh: ...
-```
-
-- `category` 取值必须是这组之一：`agi ui usage theme model identity session memory tools wsl browser vision voice docs skill workflow git notify dev security remote market fun`
-- **只有 `description.en` 是必填的**；缺中文由维护者补
-- 描述里出现 `": "`（冒号+空格）**必须加引号**，否则 YAML 会解析失败（中文全角冒号「：」没这个问题）
-- 合并后由 CI 重新生成 README 与 `plugins.json`，市场客户端（`dshmarket`）下次打开即能看到
-
-## 4. 发布后建议做的
-
-- 在仓库里打 tag 与 Release（`v0.1.0`），方便别人固定版本：`git tag v0.1.0 && git push --tags`
-- 后续升版本：改 `package.json` 的 `version` → `npm publish` → 市场侧版本/下载量由 CI 自动刷新
-- 想验证收录是否生效：`curl -s https://awesome-dsh-plugin.com/plugins.json | grep dsh-app-native`
-
----
-
-## 附：为什么包名与目录名都用 `app-native`
-
-预设 id 就是它在 `$DSH_HOME/.agent-presets/` 下的目录名（`app-native`），也是本机正在用的那个；包名 `dsh-app-native` 与之对应。安装器**已存在就不覆盖**，所以插件装到已经有该预设的机器上是安全的（你的本地改动会保留）。
+`test/` 只在仓库里,不进 npm 包(`files` 白名单未包含它)。

@@ -43,5 +43,8 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "test": "node test/run-test.mjs"
   }
 }
