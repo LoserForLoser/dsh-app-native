@@ -10,7 +10,7 @@ Installing it lands the preset in `$DSH_HOME/.agent-presets/app-native/`, so it 
 dsh plugin --profile web add dsh-app-native
 ```
 
-Restart that profile, then pick **APP原生开发** in the preset picker of a **new** session.
+Restart that profile, then pick **移动端原生开发** in the preset picker of a **new** session.
 
 No manual copying: the bundle's single host row installs the packaged `preset/app-native/` into `$DSH_HOME/.agent-presets/app-native/` idempotently.
 

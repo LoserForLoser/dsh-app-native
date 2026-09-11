@@ -10,7 +10,7 @@
 dsh plugin --profile web add dsh-app-native
 ```
 
-重启对应 profile，然后在**新会话**的预设选择器里选择「APP原生开发」。
+重启对应 profile，然后在**新会话**的预设选择器里选择「移动端原生开发」。
 
 安装**不需要**手工拷贝任何文件：bundle 里那一行 host row 会把包内的 `preset/app-native/` 幂等地装进 `$DSH_HOME/.agent-presets/app-native/`。
 

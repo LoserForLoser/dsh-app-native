@@ -1,6 +1,6 @@
 # The dsh-app-native bundle patch: activates the preset installer as a profile layer.
 #
-# The single host row self-installs the APP原生开发 (mobile native development) agent
+# The single host row self-installs the 移动端原生开发 (mobile native development) agent
 # preset — the packaged `preset/app-native/` directory — into
 # `$DSH_HOME/.agent-presets/app-native/`, which makes it selectable in the preset
 # picker of every profile. The install is idempotent: a directory that already
