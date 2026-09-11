@@ -1,0 +1,15 @@
+# The dsh-app-native bundle patch: activates the preset installer as a profile layer.
+#
+# The single host row self-installs the APP原生开发 (mobile native development) agent
+# preset — the packaged `preset/app-native/` directory — into
+# `$DSH_HOME/.agent-presets/app-native/`, which makes it selectable in the preset
+# picker of every profile. The install is idempotent: a directory that already
+# holds a preset (an `agent.cordis.yml`) is left untouched, so local edits survive
+# an upgrade.
+#
+# No other rows are needed. The preset carries its own composition (persona plus
+# the full standard tool set) and mounts its own rows; this bundle contributes
+# nothing to the tool catalog.
+- insert:
+    - id: app-native-preset-installer
+      name: dsh-app-native
