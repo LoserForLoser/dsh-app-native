@@ -85,3 +85,36 @@ LICENSE
 ```
 
 `test/` 只在仓库里,不进 npm 包(`files` 白名单未包含它)。
+
+---
+
+## 2026-11-03 复核：dsh 0.2.1-rc.5 适配
+
+### 发现的问题（阻断级）
+
+预设引用了 `@deepseek-ai/dsh-workflow-worker-thread`，该包在 npm 上的最后一个版本是 **0.1.5-rc.3**，之后被 `@deepseek-ai/dsh-workflow-ptc`（0.1.6-alpha.1 起）取代。也就是说**本预设从 dsh 0.1.6 起就无法挂载**，在 0.2.x 上会因找不到该模块而失败。
+
+### 本次改动
+
+| 文件 | 改动 |
+|---|---|
+| `preset/app-native/agent.cordis.yml` | `workflow-worker-thread` → `workflow-ptc`；新增 `time-context`、`tool-schedule` 两行 |
+| `package.json` | `0.1.0` → `0.1.1`；新增 `engines.dsh: ">=0.2.0-rc.1 <0.3.0-0"` |
+| `README.md` / `README.zh.md` | 删除「与 standard 预设逐字节一致」的错误表述，改为列出三处真实差异 |
+
+### 复核结果（dsh 0.2.1-rc.5）
+
+- 自测 **15/15 通过**
+- 预设引用的 **28 个插件全部存在**（逐条 `name:` 核对，含子路径 `tool-subagent-control/list-agents`）
+- 与官方 `standard.patch.yml` 行级对比：33 行 vs 33 行，差异仅 3 项有意保留（codex/claude-code 子代理、ralph）与 3 项管理员面（preset-standard 自身、plugin-manager、plugin-market）
+- `agent.cordis.yml` YAML 解析通过（20 个顶层条目、3 个 group、无缺 `name` 行；`!!js` 标签为 DSH 专用，解析器告警属正常）
+- `npm pack` 产出 `dsh-app-native-0.1.1.tgz`（8 个文件）
+
+### 发布状态
+
+| 步骤 | 状态 |
+|---|---|
+| npm 发布 | **仍被凭据阻断** — `npm whoami` → `ENEEDAUTH`，`--dry-run` 通过 |
+| GitHub 推送 | **被网络阻断** — 本机无法连接 github.com:443 / ssh.github.com（`api.github.com` 与 `codeload` 正常） |
+| 安装验证 | 已用 `dsh plugin --profile mmverify add <本地路径>` 装入 0.2.1-rc.5 的临时 profile，`--dump-config` 合成成功、两个 bundle 行正常出现 |
+

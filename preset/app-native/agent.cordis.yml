@@ -86,6 +86,14 @@
 # never reached the model's shell at all. Both shell tools consume the host
 # registry from here; their executors (`bash-sandbox`/`pwsh-sandbox`) are
 # host-plane too.
+# ── time context ────────────────────────────────────────────────────────────
+
+# Grounds the agent in the real current date/time. Added to the standard preset in
+# 0.2.x; without it a mobile projects agent cannot tell "this SDK is current" from
+# "this SDK was current two years ago".
+- id: time-context
+  name: '@deepseek-ai/dsh-time-context'
+
 - id: tool-bash
   name: '@deepseek-ai/dsh-tool-bash'
   disabled: !!js process.platform === 'win32'
@@ -117,6 +125,13 @@
 # chooses is whether its agent can collect and stop background work at all.
 - id: tool-jobs
   name: '@deepseek-ai/dsh-tool-jobs'
+
+# ── scheduling ──────────────────────────────────────────────────────────────
+
+# One-shot and recurring reminders inside the session. Present in the standard
+# preset since 0.2.x; useful for "wait for the emulator to finish booting" loops.
+- id: tool-schedule
+  name: '@deepseek-ai/dsh-tool-schedule'
 
 # ── skills ──────────────────────────────────────────────────────────────────
 
@@ -263,8 +278,8 @@
         backgroundMode: one-shot
         maxDepth: provider-managed
 
-    # DSH 0.2.1 replaced the worker-thread workflow provider with the shared
-    # sandboxed Node PTC runtime; the row keeps the same provider config.
+    # Renamed in dsh 0.2.1: `dsh-workflow-worker-thread` was removed and the
+    # workflow engine now runs in the shared sandboxed Node PTC runtime.
     - id: workflow-ptc
       name: '@deepseek-ai/dsh-workflow-ptc'
       config:

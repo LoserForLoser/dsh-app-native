@@ -7,8 +7,10 @@
 ## 安装
 
 ```sh
-dsh plugin --profile web add dsh-app-native
+dsh plugin --profile web add github:LoserForLoser/dsh-app-native
 ```
+
+npm 包名 `dsh-app-native` 已保留但尚未发布，请按上面的 GitHub 形式安装。
 
 重启对应 profile，然后在**新会话**的预设选择器里选择「移动端原生开发」。
 
@@ -50,14 +52,16 @@ settings.gradle(.kts) | build.gradle(.kts) + AndroidManifest.xml + *.kt/*.java -
 
 ## 更新与卸载
 
-- **更新**：`dsh plugin --profile web update dsh-app-native`，然后重启 profile。注意：如果 `$DSH_HOME/.agent-presets/app-native/` 已存在（含 `agent.cordis.yml`），安装器**不会覆盖**它——你的本地修改会被保留。想用新版预设内容覆盖，先删掉该目录再重启。
-- **卸载**：`dsh plugin --profile web remove dsh-app-native`。预设文件**不会被自动删除**（它在你的用户目录里，属于你的东西）；不需要了就手动删 `$DSH_HOME/.agent-presets/app-native/`。
+- **更新**：`dsh plugin --profile web update github:LoserForLoser/dsh-app-native`，然后重启 profile。注意：如果 `$DSH_HOME/.agent-presets/app-native/` 已存在（含 `agent.cordis.yml`），安装器**不会覆盖**它——你的本地修改会被保留。想用新版预设内容覆盖，先删掉该目录再重启。
+- **卸载**：`dsh plugin --profile web remove dsh-app-native github:LoserForLoser/dsh-app-native`。预设文件**不会被自动删除**（它在你的用户目录里，属于你的东西）；不需要了就手动删 `$DSH_HOME/.agent-presets/app-native/`。
 - **切换限制**：预设只能在**新会话**、或尚未产出任何内容（没有消息与工具调用）的会话上切换；运行中的会话保持原组装。
 - **改目录名 / 关掉自动安装**：在该 host row 的配置里设 `presetId` 或 `installPreset: false`。
 
 ## 一致性说明
 
-预设的组装文件（除 persona 段外）与随发行版提供的 `standard` 预设**逐字节一致**，并且经过 `agentPresets.standingKeyFor()` 挂载校验（等同一次会话启动的真实组装）。包内 `preset/app-native/` 就是被安装的那份内容。
+预设的组装文件（除 persona 段外）**跟随**随发行版提供的 `standard` 预设：文件、shell、搜索、web、技能、计划、目标、子代理、工作流、定时、时间上下文全部覆盖。三处有意为之的差异——保留 `codex` 与 `claude-code` 子代理行（默认关闭）和 `ralph` 循环；不包含 `plugin-manager` 与 `plugin-market` 两行（那是管理员面，不是开发工具）。
+
+兼容性：在 **dsh 0.2.1-rc.5** 上实测挂载与全部 15 项自检通过；`workflow-worker-thread` 自 0.2.1 起已被 `workflow-ptc` 取代，本预设已同步。包内 `preset/app-native/` 就是被安装的那份内容。
 
 ## License
 

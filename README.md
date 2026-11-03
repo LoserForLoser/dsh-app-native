@@ -7,8 +7,10 @@ Installing it lands the preset in `$DSH_HOME/.agent-presets/app-native/`, so it 
 ## Install
 
 ```sh
-dsh plugin --profile web add dsh-app-native
+dsh plugin --profile web add github:LoserForLoser/dsh-app-native
 ```
+
+The npm name `dsh-app-native` is reserved but not published; install from the repository.
 
 Restart that profile, then pick **移动端原生开发** in the preset picker of a **new** session.
 
@@ -34,7 +36,7 @@ oh-package.json5 + hvigorfile.ts + *.ets                              -> Harmony
 settings.gradle(.kts) | build.gradle(.kts) + AndroidManifest.xml + *.kt/*.java -> Android
 ```
 
-The tool set is **identical to the shipped `standard` preset** (files, shell, search, web, skills, plan, goals, subagents, workflows). Only the persona differs — the preset changes who the agent is and how it works, never how much it can do.
+The tool set **tracks the shipped `standard` preset** (files, shell, search, web, skills, plan, goals, subagents, workflows, scheduling, time context), with three deliberate differences: it keeps the `codex` and `claude-code` subagent rows (disabled by default) and the `ralph` loop, and it omits the plugin-manager and plugin-market rows, which are administrator surface rather than development tools. Only the persona differs elsewhere — the preset changes who the agent is and how it works, never how much it can do.
 
 ## Companion plugins (optional)
 
@@ -50,8 +52,8 @@ The capabilities the persona names come from **other plugins / host rows**, not 
 
 ## Update and removal
 
-- **Update**: `dsh plugin --profile web update dsh-app-native`, then restart. Note the installer **never overwrites** an existing `$DSH_HOME/.agent-presets/app-native/` that already holds an `agent.cordis.yml`, so your local edits survive. To take the packaged version instead, delete that directory and restart.
-- **Remove**: `dsh plugin --profile web remove dsh-app-native`. The preset files are **not** deleted for you — they live in your own home directory. Delete `$DSH_HOME/.agent-presets/app-native/` when you no longer want them.
+- **Update**: `dsh plugin --profile web update github:LoserForLoser/dsh-app-native`, then restart. Note the installer **never overwrites** an existing `$DSH_HOME/.agent-presets/app-native/` that already holds an `agent.cordis.yml`, so your local edits survive. To take the packaged version instead, delete that directory and restart.
+- **Remove**: `dsh plugin --profile web remove dsh-app-native github:LoserForLoser/dsh-app-native`. The preset files are **not** deleted for you — they live in your own home directory. Delete `$DSH_HOME/.agent-presets/app-native/` when you no longer want them.
 - **Switching**: a preset can only be chosen on a **new** session, or one that has produced nothing yet (no messages, no tool calls); a running session keeps the composition it started with.
 - **Rename or disable**: set `presetId` or `installPreset: false` on the host row's config.
 

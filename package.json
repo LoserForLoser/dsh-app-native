@@ -13,6 +13,7 @@
     "preset/**",
     "README.md",
     "README.zh.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "dsh": {
@@ -39,7 +40,8 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "dsh": ">=0.2.0-rc.1 <0.3.0-0"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
