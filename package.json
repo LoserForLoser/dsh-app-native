@@ -1,6 +1,6 @@
 {
   "name": "dsh-app-native",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mobile native development agent preset for DeepSeek Harness (dsh): iOS (Objective-C/Swift), Android (Kotlin/Java) and HarmonyOS (ArkTS/C++). Installs itself into the user preset root and stays selectable in every profile. · 移动端原生开发 agent 预设：iOS / Android / HarmonyOS 全原生语言，安装即自动落盘到用户预设目录。",
   "type": "module",
   "main": "lib/index.js",
