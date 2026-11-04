@@ -1,65 +1,69 @@
 # dsh-app-native
 
-A **mobile native development** agent preset for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`): one preset covering iOS, Android and HarmonyOS in **all of their native languages**, with the platform detected from the workspace.
+**中文** | [English](./README.en.md)
 
-Installing it lands the preset in `$DSH_HOME/.agent-presets/app-native/`, so it is selectable in the preset picker of **every profile**.
+给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`dsh`）的**移动端原生开发** agent 预设：一个预设覆盖 iOS、Android、HarmonyOS 三端**全部原生语言**，并按工作区自动识别平台。
 
-## Install
+安装后预设会自动落盘到 `$DSH_HOME/.agent-presets/app-native/`，在**每个 profile** 的预设选择器里直接可选。
+
+## 安装
 
 ```sh
 dsh plugin --profile web add github:LoserForLoser/dsh-app-native
 ```
 
-The npm name `dsh-app-native` is reserved but not published; install from the repository.
+npm 包名 `dsh-app-native` 已保留但尚未发布，请按上面的 GitHub 形式安装。
 
-Restart that profile, then pick **移动端原生开发** in the preset picker of a **new** session.
+重启对应 profile，然后在**新会话**的预设选择器里选择「移动端原生开发」。
 
-No manual copying: the bundle's single host row installs the packaged `preset/app-native/` into `$DSH_HOME/.agent-presets/app-native/` idempotently.
+安装**不需要**手工拷贝任何文件：bundle 里那一行 host row 会把包内的 `preset/app-native/` 幂等地装进 `$DSH_HOME/.agent-presets/app-native/`。
 
-## What the preset does
+## 这个预设带来什么
 
-Instead of a generic coding agent, you get one that identifies the platform first and then works by that platform's rules:
+不再是一个通用编码 agent，而是一个**先认平台、再动手**的移动端原生开发 agent：
 
-| Platform | Languages | Discipline baked into the persona |
+| 平台 | 覆盖的语言 | 固化的纪律 |
 |---|---|---|
-| **iOS** | Objective-C, Swift, C/C++ | Do not switch languages (no ObjC→Swift ports), no new pods/packages for a bug fix; get real compiler answers from the `lsp_*` tools (clangd for `.m/.mm/.h/.c/.cpp`, sourcekit-lsp for `.swift`); build with `ios_sim_build_run` and read the xcodebuild error tail; **never hand-edit `.xcodeproj/.pbxproj`**; drive UI through `ios_sim_*` and confirm every action with `expect_text` / `expect_gone` |
-| **Android** | Kotlin, Java, C/C++ (NDK) | Kotlin-first in new code but **match the module you are in** (no incidental Java→Kotlin rewrites, no View→Compose migration as a side effect); build with the project's own `./gradlew` and read Gradle failures; dependencies live in `build.gradle(.kts)` / version catalogs, not dropped-in jars; **never hand-edit generated files** (merged manifest, BuildConfig, R, `build/`, the wrapper); runtime evidence comes from the device loop (`adb install` / `am start` + logcat) |
-| **HarmonyOS** | ArkTS, C/C++ (Native API), legacy JS/FA | Take platform APIs from official, version-classified sources (`hms_api` / `hms_docs` / `hms_api_change` / `hms_knowledge`) and state the target version; prefer ArkTS in new code; `arkts_check` → `build_project` as the verify loop; `hdc_log` for device logs; the `hdc-bridge` observe → locate → act → verify device loop; **never hand-edit hvigor/ohpm output** |
+| **iOS** | Objective-C、Swift、C/C++ | 不改语言（不把 ObjC 改写成 Swift）、不为修 bug 加 pod/包；`lsp_*`（clangd 处理 `.m/.mm/.h/.c/.cpp`，sourcekit-lsp 处理 `.swift`）拿真实编译答案；`ios_sim_build_run` 构建并读 xcodebuild 错误尾；**不手改 `.xcodeproj/.pbxproj`**；`ios_sim_*` UI 环并要求每次操作用 `expect_text` / `expect_gone` 验证 |
+| **Android** | Kotlin、Java、C/C++（NDK） | 新代码 Kotlin 优先，但**跟随所在模块**（不顺手把 Java 改写成 Kotlin、不顺手把 View 迁 Compose）；用工程自带 `./gradlew` 构建并读 Gradle 失败输出；依赖写在 `build.gradle(.kts)` / version catalog，不塞 jar；**不手改生成物**（合并后的 manifest、BuildConfig、R、build/、wrapper）；运行证据来自设备环（`adb install` / `am start` + logcat），不靠猜 |
+| **HarmonyOS** | ArkTS、C/C++（Native API）、旧版 JS/FA | 平台 API 取自**官方、按 API 版本分类**的来源（`hms_api`/`hms_docs`/`hms_api_change`/`hms_knowledge`）并声明目标版本；新代码优先 ArkTS；`arkts_check` → `build_project` 验证环；`hdc_log` 读日志；`hdc-bridge` 的「观察 → 定位 → 操作 → 验证」设备闭环；**不手改 hvigor/ohpm 生成物** |
 
-Shared rules: conservative production changes (no new dependency, permission, entitlement or build configuration without asking), never touch vendored or generated code (`Pods/`, `oh_modules/`, `.gradle/`, `build/`, `*.pbxproj`), and — because the active model may be text-only — send device and UI screenshots to `modlens_read_image` for structured evidence rather than `read_image`.
+三端共享的规矩：生产应用改动保守（不加依赖/权限/授权/构建配置除非先问）、不碰 vendored 与生成代码（`Pods/`、`oh_modules/`、`.gradle/`、`build/`、`*.pbxproj`）；**当前模型若是纯文本**，截图一律送 `modlens_read_image` 取结构化证据，而不是 `read_image`。
 
-Workspace markers the preset dispatches on:
+工作区识别标识：
 
 ```
-oh-package.json5 + hvigorfile.ts + *.ets                              -> HarmonyOS
-*.xcodeproj | *.xcworkspace + Podfile | Package.swift + *.m/*.swift   -> iOS
+oh-package.json5 + hvigorfile.ts + *.ets                        -> HarmonyOS
+*.xcodeproj | *.xcworkspace + Podfile | Package.swift + *.m/*.swift -> iOS
 settings.gradle(.kts) | build.gradle(.kts) + AndroidManifest.xml + *.kt/*.java -> Android
 ```
 
-The tool set **tracks the shipped `standard` preset** (files, shell, search, web, skills, plan, goals, subagents, workflows, scheduling, time context), with three deliberate differences: it keeps the `codex` and `claude-code` subagent rows (disabled by default) and the `ralph` loop, and it omits the plugin-manager and plugin-market rows, which are administrator surface rather than development tools. Only the persona differs elsewhere — the preset changes who the agent is and how it works, never how much it can do.
+工具集与官方 `standard` 预设**完全一致**（文件、Shell、检索、web、skills、计划、目标、子代理、工作流等）；差别只在 persona。也就是说这个预设**只换"你是谁、按什么规矩做事"，不减少任何能力**。
 
-## Companion plugins (optional)
+## 配套建议（可选，但体验更完整）
 
-The capabilities the persona names come from **other plugins / host rows**, not from this package. Without them the preset still runs — those specific tools are just absent:
+预设里点名的这些能力来自**其它插件/宿主行**，不是本包提供的。缺了它们预设照样能跑，只是对应工具不可用：
 
-| For | Install |
+| 想要 | 装什么 |
 |---|---|
-| `lsp_*` code intelligence (clangd / sourcekit-lsp / tsc) | `dsh-lsp-actions`, with a `servers` table in the profile's `cordis.patch.yml` |
-| iOS simulator/device loop (`ios_sim_*`, `ios_real_start_wda`) | `@zseven-w/dsh-ios` (macOS + full Xcode) |
-| HarmonyOS device loop (`hdc_*`) and HarmonyOS NEXT skills | `dsh-hdc-bridge`, `github:linhay/harmony-next.skills` |
-| Vision for a text-only model (screenshot evidence) | `@liustack/modlens` |
-| `arkts_check` / `build_project` / `hms_*` | provided by the deployment's DevEco / deveco-cli toolchain |
+| `lsp_*` 代码智能（clangd / sourcekit-lsp / tsc） | `dsh-lsp-actions`，并在 profile 的 `cordis.patch.yml` 里配好 `servers` |
+| iOS 模拟器/真机 loop（`ios_sim_*`、`ios_real_start_wda`） | `@zseven-w/dsh-ios`（需要 macOS + 完整 Xcode） |
+| 鸿蒙设备 loop（`hdc_*`）与 HarmonyOS NEXT 技能包 | `dsh-hdc-bridge`、`github:linhay/harmony-next.skills` |
+| 纯文本模型的视觉能力（截图取证） | `@liustack/modlens` |
+| `arkts_check` / `build_project` / `hms_*` | 由部署自带的 DevEco/deveco-cli 工具链提供 |
 
-## Update and removal
+## 更新与卸载
 
-- **Update**: `dsh plugin --profile web update github:LoserForLoser/dsh-app-native`, then restart. Note the installer **never overwrites** an existing `$DSH_HOME/.agent-presets/app-native/` that already holds an `agent.cordis.yml`, so your local edits survive. To take the packaged version instead, delete that directory and restart.
-- **Remove**: `dsh plugin --profile web remove dsh-app-native github:LoserForLoser/dsh-app-native`. The preset files are **not** deleted for you — they live in your own home directory. Delete `$DSH_HOME/.agent-presets/app-native/` when you no longer want them.
-- **Switching**: a preset can only be chosen on a **new** session, or one that has produced nothing yet (no messages, no tool calls); a running session keeps the composition it started with.
-- **Rename or disable**: set `presetId` or `installPreset: false` on the host row's config.
+- **更新**：`dsh plugin --profile web update github:LoserForLoser/dsh-app-native`，然后重启 profile。注意：如果 `$DSH_HOME/.agent-presets/app-native/` 已存在（含 `agent.cordis.yml`），安装器**不会覆盖**它——你的本地修改会被保留。想用新版预设内容覆盖，先删掉该目录再重启。
+- **卸载**：`dsh plugin --profile web remove dsh-app-native github:LoserForLoser/dsh-app-native`。预设文件**不会被自动删除**（它在你的用户目录里，属于你的东西）；不需要了就手动删 `$DSH_HOME/.agent-presets/app-native/`。
+- **切换限制**：预设只能在**新会话**、或尚未产出任何内容（没有消息与工具调用）的会话上切换；运行中的会话保持原组装。
+- **改目录名 / 关掉自动安装**：在该 host row 的配置里设 `presetId` 或 `installPreset: false`。
 
-## Consistency
+## 一致性说明
 
-The preset composition is **byte-identical to the shipped `standard` preset except for the persona block**, and it passes `agentPresets.standingKeyFor()` mount validation (the same mount a session start performs). The `preset/app-native/` directory in this package is exactly what gets installed.
+预设的组装文件（除 persona 段外）**跟随**随发行版提供的 `standard` 预设：文件、shell、搜索、web、技能、计划、目标、子代理、工作流、定时、时间上下文全部覆盖。三处有意为之的差异——保留 `codex` 与 `claude-code` 子代理行（默认关闭）和 `ralph` 循环；不包含 `plugin-manager` 与 `plugin-market` 两行（那是管理员面，不是开发工具）。
+
+兼容性：在 **dsh 0.2.1-rc.5** 上实测挂载与全部 15 项自检通过；`workflow-worker-thread` 自 0.2.1 起已被 `workflow-ptc` 取代，本预设已同步。包内 `preset/app-native/` 就是被安装的那份内容。
 
 ## License
 

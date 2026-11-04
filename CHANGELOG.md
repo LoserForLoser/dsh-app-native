@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Docs: 中文说明改为仓库主 README(`README.md`),英文移至 `README.en.md`,
+  两个文件顶部各有一行语言切换。文档改动,代码与版本均未变动。
+
 ## 0.1.1 — 2026-11-03
 
 ### Fixed
